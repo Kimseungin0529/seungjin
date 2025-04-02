@@ -152,7 +152,8 @@
 <br/>
 
 ## 🔨 Architecture
-<img width="918" alt="스크린샷 2025-03-09 오후 2 13 56" src="https://github.com/user-attachments/assets/e5501012-95a9-436c-82be-1f556bd68834" />
+<img width="918" alt="image" src="https://github.com/user-attachments/assets/c690d7fc-9532-4843-8cc5-1a5fdae23607" />
+
 
 
 ```````
