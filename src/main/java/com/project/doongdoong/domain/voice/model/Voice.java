@@ -27,13 +27,13 @@ public class Voice extends BaseEntity {
     @Builder(builderClassName = "CommonBuilder", builderMethodName = "commonBuilder")
     public Voice(String originName) {
         this.originName = originName;
-        this.storedName = gainFileName(originName);
+        this.storedName = gainRandomFileName(originName);
         this.accessUrl = "";
     }
     @Builder(builderClassName = "InitVoiceContentBuilder", builderMethodName = "initVoiceContentBuilder")
     public Voice(String originName, QuestionContent questionContent) {
         this.originName = originName;
-        this.storedName = gainFileName() + originName;
+        this.storedName = gainRandomFileName() + originName;
         this.accessUrl = "";
         this.questionContent = questionContent;
     }
@@ -41,17 +41,16 @@ public class Voice extends BaseEntity {
         this.accessUrl = accessUrl;
     }
 
-    // 이미지 파일의 확장자를 추출하는 메소드
-    public String extractExtension(String originName) {
-        int index = originName.lastIndexOf('.');
-
-        return originName.substring(index, originName.length());
-    }
-
-    public String gainFileName(String originName) {
+    private String gainRandomFileName(String originName) {
         return UUID.randomUUID()  + extractExtension(originName);
     }
-    public String gainFileName() {
+
+    private String gainRandomFileName() {
         return UUID.randomUUID().toString();
+    }
+
+    private String extractExtension(String originName) {
+        int index = originName.lastIndexOf('.');
+        return originName.substring(index);
     }
 }

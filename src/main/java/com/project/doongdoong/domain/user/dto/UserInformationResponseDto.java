@@ -2,8 +2,10 @@ package com.project.doongdoong.domain.user.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class UserInformationResponseDto {
     private String nickname;
 
@@ -15,10 +17,19 @@ public class UserInformationResponseDto {
 
 
     @Builder
-    public UserInformationResponseDto(String nickname, String email, String socialType, Long analysisCount) {
+    private UserInformationResponseDto(String nickname, String email, String socialType, Long analysisCount) {
         this.nickname = nickname;
         this.email = email;
         this.socialType = socialType;
         this.analysisCount = analysisCount;
+    }
+
+    public static UserInformationResponseDto of(String nickname, String email, String socialType, Long analysisCount) {
+        return UserInformationResponseDto.builder()
+                .nickname(nickname)
+                .email(email)
+                .socialType(socialType)
+                .analysisCount(analysisCount)
+                .build();
     }
 }

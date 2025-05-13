@@ -29,11 +29,11 @@ public class BlackAccessToken implements Serializable {
     public static BlackAccessToken of(String socialId, String socialType, String accessToken){
 
         return BlackAccessToken.builder()
-                .uniqueId(findUniqueId(socialId,socialType))
+                .uniqueId(generateUniqueKeyWith(socialId,socialType))
                 .accessToken(accessToken)
                 .build();
     }
-    public static String findUniqueId(String socialId, String socialType){
+    public static String generateUniqueKeyWith(String socialId, String socialType){
         return socialId + "_" + socialType;
     }
 }

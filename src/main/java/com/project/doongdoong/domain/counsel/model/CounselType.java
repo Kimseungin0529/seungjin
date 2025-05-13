@@ -1,6 +1,5 @@
 package com.project.doongdoong.domain.counsel.model;
 
-import com.project.doongdoong.domain.counsel.exception.CounselTypeInvalidException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -14,16 +13,17 @@ public enum CounselType {
     JOB("취업진로"),
     MENTAL_HEALTH("정신건강"),
     RELATIONSHIP("대인관계"),
-    FAMILY("가족");
+    FAMILY("가족"),
+    ETC("기타");
 
-    private final String content;
+    private final String description;
 
-    public static CounselType from(String value) {
+    public static CounselType generateCounselTypeFrom(String counselTypeName) {
 
         return Arrays.stream(CounselType.values())
-                .filter(i -> i.getContent().equals(value))
+                .filter(counselType -> counselType.getDescription().equals(counselTypeName))
                 .findAny()
-                .orElseThrow(() -> new CounselTypeInvalidException(value));
+                .orElse(ETC);
     }
 
 }

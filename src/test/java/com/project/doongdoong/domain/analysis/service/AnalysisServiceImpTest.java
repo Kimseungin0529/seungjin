@@ -62,7 +62,7 @@ class AnalysisServiceImpTest extends IntegrationSupportTest {
 
         User user1 = createUser("socialId", SocialType.APPLE);
         User savedUser = userRepository.save(user1);
-        String uniqueValue1 = savedUser.getSocialId() + "_" + savedUser.getSocialType().getText();
+        String uniqueValue1 = savedUser.getSocialId() + "_" + savedUser.getSocialType().getDescription();
 
         int analysisRelatedSize = 4;
         List<String> allQuestionTexts = Arrays.stream(QuestionContent.values())
@@ -234,7 +234,7 @@ class AnalysisServiceImpTest extends IntegrationSupportTest {
         List<Analysis> analysies = List.of(analysis1, analysis2, analysis3, analysis4, analysis5, analysis6, analysis7);
         analysisRepository.saveAll(analysies);
 
-        String uniqueValue = socialId + "_" + socialType.getText();
+        String uniqueValue = socialId + "_" + socialType.getDescription();
         int pageNumber = 0;
 
         //when
@@ -281,7 +281,7 @@ class AnalysisServiceImpTest extends IntegrationSupportTest {
         SocialType socialType = SocialType.APPLE;
         User user = createUser(socialId, socialType);
         User savedUser = userRepository.save(user);
-        String uniqueValue = savedUser.getSocialId() + "_" + savedUser.getSocialType().getText();
+        String uniqueValue = savedUser.getSocialId() + "_" + savedUser.getSocialType().getDescription();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-M-d");
 
         List<Analysis> arrayList = new ArrayList<>();
@@ -345,7 +345,7 @@ class AnalysisServiceImpTest extends IntegrationSupportTest {
         SocialType socialType = SocialType.APPLE;
         User user = createUser(socialId, socialType);
         User savedUser = userRepository.save(user);
-        String uniqueValue = savedUser.getSocialId() + "_" + savedUser.getSocialType().getText();
+        String uniqueValue = savedUser.getSocialId() + "_" + savedUser.getSocialType().getDescription();
 
         Question question1 = createQuestion(QuestionContent.FIXED_QUESTION1);
         Question question2 = createQuestion(QuestionContent.FIXED_QUESTION2);

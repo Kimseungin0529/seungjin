@@ -11,7 +11,7 @@ public class VoiceDetailResponseDto {
     private String accessUrl;
 
     @Builder
-    public VoiceDetailResponseDto(String accessUrl) {
+    private VoiceDetailResponseDto(String accessUrl) {
         this.accessUrl = accessUrl;
     }
 

@@ -58,11 +58,18 @@ public class User extends BaseEntity {
     }
 
     public void checkRoles() {
-        if (this.roles.isEmpty()) {
-            this.roles = Collections.singletonList(Role.ROLE_USER.toString());
-        }
+        this.roles = roles.isEmpty() ? Collections.singletonList(Role.ROLE_USER.toString()) : roles;
 
     }
+
+    public boolean isSameEmail(String email) {
+        return this.email.equals(email);
+    }
+
+    public boolean isSameNickname(String nickname) {
+        return this.nickname.equals(nickname);
+    }
+
 
     public void growUp() {
         this.emotionGrowth++;
@@ -73,5 +80,6 @@ public class User extends BaseEntity {
         if (getEmotionGrowth() == 101L)
             this.emotionGrowth %= 101;
     }
+
 
 }

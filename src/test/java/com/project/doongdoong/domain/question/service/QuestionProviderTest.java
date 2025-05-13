@@ -30,5 +30,23 @@ public class QuestionProviderTest extends IntegrationSupportTest {
 
     }
 
+    @DisplayName("임의의 고정 질문을 생성합니다.")
+    @Test
+    void createFixedQuestion() {
+        // given & when
+        Question result = questionProvider.createFixedQuestion();
+        // then
+        assertThat(result.getQuestionContent().isFixedQuestion()).isEqualTo(true);
+    }
+
+    @DisplayName("임의의 비고정 질문을 생성합니다.")
+    @Test
+    void createUnFixedQuestion() {
+        // given & when
+        Question result = questionProvider.createUnFixedQuestion();
+        // then
+        assertThat(result.getQuestionContent().isFixedQuestion()).isEqualTo(false);
+    }
+
 
 }

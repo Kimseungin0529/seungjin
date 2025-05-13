@@ -18,7 +18,7 @@ import com.project.doongdoong.domain.counsel.model.Counsel;
 import com.project.doongdoong.domain.counsel.model.CounselType;
 import com.project.doongdoong.domain.counsel.repository.CounselRepository;
 import com.project.doongdoong.domain.user.exeception.UserNotFoundException;
-import com.project.doongdoong.domain.user.model.SocialType;
+import com.project.doongdoong.domain.user.model.SocialIdentifier;
 import com.project.doongdoong.domain.user.model.User;
 import com.project.doongdoong.domain.user.repository.UserRepository;
 import com.project.doongdoong.global.dto.response.CounselAiResponse;
@@ -45,19 +45,20 @@ public class CounselServiceImpl implements CounselService {
     private final CounselRepository counselRepository;
     private final UserRepository userRepository;
     private final WebClientUtil webClientUtil;
+
     private final static int COUNSEL_PAGE_SIZE = 10;
 
 
     @Transactional
     @Override
     public CounselResultResponse consult(String uniqueValue, CounselCreateRequest request) {
-        String[] values = parseUniqueValue(uniqueValue); // 사용자 정보 찾기
-        User user = userRepository.findBySocialTypeAndSocialId(SocialType.customValueOf(values[1]), values[0])
-                .orElseThrow(() -> new UserNotFoundException());
+        SocialIdentifier identifier = SocialIdentifier.from(uniqueValue);
+        User user = userRepository.findBySocialTypeAndSocialId(identifier.getSocialType(), identifier.getSocialId())
+                .orElseThrow(UserNotFoundException::new);
 
         Counsel counsel = Counsel.builder() // 상담 객체 생성
                 .question(request.getQuestion())
-                .counselType(CounselType.from(request.getCounselType()))
+                .counselType(CounselType.generateCounselTypeFrom(request.getCounselType()))
                 .user(user)
                 .build();
         /**
@@ -90,7 +91,7 @@ public class CounselServiceImpl implements CounselService {
     private HashMap<String, Object> setupParameters(Counsel counsel) {
         HashMap<String, Object> parameters = new HashMap<String, Object>(); // 외부 API request 설정
         parameters.put("question", counsel.getQuestion()); // 고민은 필수
-        parameters.put("category", counsel.getCounselType().getContent());
+        parameters.put("category", counsel.getCounselType().getDescription());
 
 
         Optional.ofNullable(counsel.getAnalysis()) // 분석 -> 상담 으로 연결되는 경우, 분석에 대한 답변 항목 추가
@@ -117,11 +118,10 @@ public class CounselServiceImpl implements CounselService {
     }
 
     @Override
-    public CounselDetailResponse findCounselContent(String socialId, Long counselId) {
-        String[] value = parseUniqueValue(socialId);
-        log.info(value[0], value[1]);
-        User findUser = userRepository.findBySocialTypeAndSocialId(SocialType.customValueOf(value[1]), value[0])
-                .orElseThrow(() -> new UserNotFoundException());
+    public CounselDetailResponse findCounselContent(String uniqueValue, Long counselId) {
+        SocialIdentifier identifier = SocialIdentifier.from(uniqueValue);
+        User findUser = userRepository.findBySocialTypeAndSocialId(identifier.getSocialType(), identifier.getSocialId())
+                .orElseThrow(UserNotFoundException::new);
         Counsel findCounsel = counselRepository.findWithAnalysisById(counselId).orElseThrow(() -> new CounselNotFoundException());
 
         if (!findCounsel.getUser().getId().equals(findUser.getId())) { // 사용자 본인의 상담만 확인 가능
@@ -129,25 +129,28 @@ public class CounselServiceImpl implements CounselService {
         }
 
         return CounselDetailResponse.builder()
-                .data(findCounsel.getCreatedTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                .date(findCounsel.getCreatedTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                 .counselId(findCounsel.getId())
                 .question(findCounsel.getQuestion())
                 .answer(findCounsel.getAnswer())
                 .imageUrl(findCounsel.getImageUrl())
-                .counselType(findCounsel.getCounselType().getContent())
+                .counselType(findCounsel.getCounselType().getDescription())
                 .build();
     }
 
     @Override
     public CounselListResponse findCounsels(String uniqueValue, int pageNumber) {
-        String[] value = parseUniqueValue(uniqueValue);
-        User findUser = userRepository.findBySocialTypeAndSocialId(SocialType.customValueOf(value[1]), value[0])
-                .orElseThrow(() -> new UserNotFoundException());
+        SocialIdentifier identifier = SocialIdentifier.from(uniqueValue);
+        User findUser = userRepository.findBySocialTypeAndSocialId(identifier.getSocialType(), identifier.getSocialId())
+                .orElseThrow(UserNotFoundException::new);
+
 
         pageNumber -= 1;
         PageRequest pageRequest = PageRequest.of(pageNumber, COUNSEL_PAGE_SIZE);
+        log.info("pageNumber = {}", pageNumber);
         Page<Counsel> counselsPage = counselRepository.searchPageCounselList(findUser, pageRequest);
-
+        log.info("getTotalPages = {}", counselsPage.getTotalPages());
+        log.info("getTotalElements() = {}", counselsPage.getTotalElements());
         if (pageNumber + 1 > counselsPage.getTotalPages()) { // 존재하지 않는 페이지에 접근하는 경우
             throw new CounselNotExistPageException();
         }
@@ -163,7 +166,7 @@ public class CounselServiceImpl implements CounselService {
                                         .date(counsel.getCreatedTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                                         .counselId(counsel.getId())
                                         .isAnalysisUsed(counsel.hasAnalysis())
-                                        .counselType(counsel.getCounselType().getContent())
+                                        .counselType(counsel.getCounselType().getDescription())
                                         .build()
                         )
                         .collect(Collectors.toList())
@@ -173,8 +176,4 @@ public class CounselServiceImpl implements CounselService {
         return response;
     }
 
-    private static String[] parseUniqueValue(String uniqueValue) {
-        String[] values = uniqueValue.split("_"); // 사용자 찾기
-        return values;
-    }
 }

@@ -2,16 +2,16 @@ package com.project.doongdoong.global.util;
 
 import com.google.cloud.texttospeech.v1.*;
 import com.project.doongdoong.global.exception.GoogleTtsException;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 @Component @Slf4j
-public class GoogleTtsProvider {
+public class GoogleTtsProvider implements TtsConverter{
 
 
+    @Override
     public byte[] convertTextToSpeech(String text){
         log.info("시작");
         byte[] audioContent = null;

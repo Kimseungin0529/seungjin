@@ -34,32 +34,24 @@ public class UserController {
 
 
     @PostMapping("/logout-oauth")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ApiResponse<?> userLogout(@Valid @RequestBody LogoutDto logoutDto,
-                                     //@Parameter(description = "Authorization token", required = true,schema = @Schema(type = "string"), in = ParameterIn.HEADER)
                                      @RequestHeader("Authorization") String accessToken) {
         userService.logout(logoutDto, accessToken);
-
-        return ApiResponse.of(HttpStatus.OK, null, "logout success");
+        return ApiResponse.of(HttpStatus.NO_CONTENT, null, "logout success");
     }
 
 
     @PostMapping("/reissue")
     public ApiResponse<TokenDto> userReissue(@Valid @RequestBody ReissueDto reissueDto) {
-        TokenDto reissuedToken = userService.reissue(reissueDto);
 
-        return ApiResponse.of(HttpStatus.OK, null, reissuedToken);
+        return ApiResponse.of(HttpStatus.OK, null, userService.reissue(reissueDto));
     }
 
     @GetMapping("/my-page")
     public ApiResponse<UserInformationResponseDto> userMyPage(@CurrentUser String uniqueValue) {
 
         return ApiResponse.of(HttpStatus.OK, null, userService.getMyPage(uniqueValue));
-    }
-
-    @GetMapping("/jwt-test")
-    public ApiResponse<?> test() {
-
-        return ApiResponse.of(HttpStatus.OK, null, "성공");
     }
 
 }

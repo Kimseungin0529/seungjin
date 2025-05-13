@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface BlackAccessTokenRepository extends CrudRepository<BlackAccessToken, String> {
     Optional<BlackAccessToken> findByAccessToken(String accessToken);
+
+    Optional<BlackAccessToken> findByUniqueId(String uniqueId);
 }

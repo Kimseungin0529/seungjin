@@ -60,7 +60,7 @@ class CounselServiceImplTest extends IntegrationSupportTest {
                 "개발자가 되기 위해서는 꾸준한 학습과 프로젝트 경험이 필요합니다.",
                 "http://example.com/image.jpg"
         );
-        String uniqueValue = savedUser.getSocialId() + "_" + savedUser.getSocialType().getText();
+        String uniqueValue = savedUser.getSocialId() + "_" + savedUser.getSocialType().getDescription();
 
         when(webClientUtil.callConsult(any(HashMap.class)))
                 .thenReturn(mockResponse);
@@ -106,7 +106,7 @@ class CounselServiceImplTest extends IntegrationSupportTest {
                 "개발자가 되기 위해서는 꾸준한 학습과 프로젝트 경험이 필요합니다.",
                 "http://example.com/image.jpg"
         );
-        String uniqueValue = savedUser.getSocialId() + "_" + savedUser.getSocialType().getText();
+        String uniqueValue = savedUser.getSocialId() + "_" + savedUser.getSocialType().getDescription();
 
         when(webClientUtil.callConsult(any(HashMap.class)))
                 .thenReturn(mockResponse);
@@ -158,7 +158,7 @@ class CounselServiceImplTest extends IntegrationSupportTest {
                 "개발자가 되기 위해서는 꾸준한 학습과 프로젝트 경험이 필요합니다.",
                 "http://example.com/image.jpg"
         );
-        String otherUniqueValue = savedOtherUser.getSocialId() + "_" + savedOtherUser.getSocialType().getText();
+        String otherUniqueValue = savedOtherUser.getSocialId() + "_" + savedOtherUser.getSocialType().getDescription();
 
         when(webClientUtil.callConsult(any(HashMap.class)))
                 .thenReturn(mockResponse);
@@ -189,19 +189,19 @@ class CounselServiceImplTest extends IntegrationSupportTest {
         return List.of(
                 DynamicTest.dynamicTest("상담 내용을 조회합니다.", () -> {
                             //given
-                            String uniqueValue = user1.getSocialId() + "_" + user1.getSocialType().getText();
+                            String uniqueValue = user1.getSocialId() + "_" + user1.getSocialType().getDescription();
                             //when
                             CounselDetailResponse result = counselService.findCounselContent(uniqueValue, savedCounsel.getId());
                             //then
                             assertThat(result)
                                     .extracting("counselId", "question", "answer", "counselType")
-                                    .containsExactly(savedCounsel.getId(), "상담 질문 내용", savedCounsel.getAnswer(), CounselType.LOVE.getContent());
+                                    .containsExactly(savedCounsel.getId(), "상담 질문 내용", savedCounsel.getAnswer(), CounselType.LOVE.getDescription());
                         }
 
                 ),
                 DynamicTest.dynamicTest("남의 상담 내용을 조회할 수 없습니다.", () -> {
                     // given
-                    String otherUniqueValue = user2.getSocialId() + "_" + user2.getSocialType().getText();
+                    String otherUniqueValue = user2.getSocialId() + "_" + user2.getSocialType().getDescription();
                     // when & then
                     assertThatThrownBy(() ->
                             counselService.findCounselContent(otherUniqueValue, savedCounsel.getId()))
@@ -255,16 +255,16 @@ class CounselServiceImplTest extends IntegrationSupportTest {
                             .hasSize(10)
                             .extracting("date", "counselId", "isAnalysisUsed", "counselType")
                             .containsExactly(
-                                    tuple(getDateFormatBy(counsel1, datePattern), counsel1.getId(), false, counsel1.getCounselType().getContent()),
-                                    tuple(getDateFormatBy(counsel2, datePattern), counsel2.getId(), false, counsel2.getCounselType().getContent()),
-                                    tuple(getDateFormatBy(counsel3, datePattern), counsel3.getId(), false, counsel3.getCounselType().getContent()),
-                                    tuple(getDateFormatBy(counsel4, datePattern), counsel4.getId(), false, counsel4.getCounselType().getContent()),
-                                    tuple(getDateFormatBy(counsel5, datePattern), counsel5.getId(), false, counsel5.getCounselType().getContent()),
-                                    tuple(getDateFormatBy(counsel6, datePattern), counsel6.getId(), false, counsel6.getCounselType().getContent()),
-                                    tuple(getDateFormatBy(counsel7, datePattern), counsel7.getId(), false, counsel7.getCounselType().getContent()),
-                                    tuple(getDateFormatBy(counsel8, datePattern), counsel8.getId(), false, counsel8.getCounselType().getContent()),
-                                    tuple(getDateFormatBy(counsel9, datePattern), counsel9.getId(), false, counsel9.getCounselType().getContent()),
-                                    tuple(getDateFormatBy(counsel10, datePattern), counsel10.getId(), false, counsel10.getCounselType().getContent())
+                                    tuple(getDateFormatBy(counsel1, datePattern), counsel1.getId(), false, counsel1.getCounselType().getDescription()),
+                                    tuple(getDateFormatBy(counsel2, datePattern), counsel2.getId(), false, counsel2.getCounselType().getDescription()),
+                                    tuple(getDateFormatBy(counsel3, datePattern), counsel3.getId(), false, counsel3.getCounselType().getDescription()),
+                                    tuple(getDateFormatBy(counsel4, datePattern), counsel4.getId(), false, counsel4.getCounselType().getDescription()),
+                                    tuple(getDateFormatBy(counsel5, datePattern), counsel5.getId(), false, counsel5.getCounselType().getDescription()),
+                                    tuple(getDateFormatBy(counsel6, datePattern), counsel6.getId(), false, counsel6.getCounselType().getDescription()),
+                                    tuple(getDateFormatBy(counsel7, datePattern), counsel7.getId(), false, counsel7.getCounselType().getDescription()),
+                                    tuple(getDateFormatBy(counsel8, datePattern), counsel8.getId(), false, counsel8.getCounselType().getDescription()),
+                                    tuple(getDateFormatBy(counsel9, datePattern), counsel9.getId(), false, counsel9.getCounselType().getDescription()),
+                                    tuple(getDateFormatBy(counsel10, datePattern), counsel10.getId(), false, counsel10.getCounselType().getDescription())
                             );
                 }),
                 DynamicTest.dynamicTest("존재하지 않는 페이지에 접근할 수 없습니다.", () -> {

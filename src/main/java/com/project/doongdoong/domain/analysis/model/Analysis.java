@@ -86,4 +86,10 @@ public class Analysis extends BaseEntity {
     public boolean isAlreadyAnalyzed() {
         return this.analyzeTime != null;
     }
+
+    public void addUser(User user) {
+        this.user = user;
+        user.getAnalysisList().add(this);
+    }
+
 }

@@ -16,8 +16,8 @@ public class CounselDetailResponse {
     private String counselType;
 
     @Builder
-    public CounselDetailResponse(String data, Long counselId, String question, String answer, String imageUrl, String counselType) {
-        this.date = data;
+    public CounselDetailResponse(String date, Long counselId, String question, String answer, String imageUrl, String counselType) {
+        this.date = date;
         this.counselId = counselId;
         this.question = question;
         this.answer = answer;

@@ -108,8 +108,8 @@ tasks.test {
 
 sonar {
   properties {
-    property("sonar.projectKey", "poda")
-    property("sonar.projectName", "poda")
+    property("sonar.projectKey", "cheer-you")
+    property("sonar.projectName", "cheer-you")
   }
 }
 

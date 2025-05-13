@@ -16,9 +16,9 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 @Profile("!test")
-public class InitProvider {
+public class VoiceInitializeProvider {
 
-    private final GoogleTtsProvider googleTtsProvider;
+    private final TtsConverter ttsConverter;
     private final VoiceRepository voiceRepository;
     private final VoiceService voiceService;
 
@@ -29,10 +29,11 @@ public class InitProvider {
 
         for (QuestionContent questionContent : QuestionContent.values()) {
             Optional<Voice> existingVoice = voiceRepository.findVoiceByQuestionContent(questionContent);
-            if (!existingVoice.isPresent()) {
-                byte[] audioContent = googleTtsProvider.convertTextToSpeech(questionContent.getText());
+
+            if (existingVoice.isEmpty()) {
+                byte[] audioContent = ttsConverter.convertTextToSpeech(questionContent.getText());
                 String filename = VOICE_QUESTION + questionContent.getNumber();
-                voiceService.saveTtsVoice(audioContent, filename, questionContent);
+                voiceService.saveVoice(audioContent, filename, questionContent);
                 log.info("Voice for question {} created and saved.", questionContent.getNumber());
             }
         }

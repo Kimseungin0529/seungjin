@@ -4,11 +4,13 @@ import com.project.doongdoong.global.common.ErrorResponse;
 import com.project.doongdoong.global.exception.CustomException;
 import com.project.doongdoong.global.exception.ErrorType;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSourceResolvable;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +22,20 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 @Slf4j
 @RestControllerAdvice
 public class CustomExceptionHandler {
+
+    // Valid Exception
+    @ResponseStatus(value = BAD_REQUEST)
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ErrorResponse handleHandlerMethodValidationException(HandlerMethodValidationException ex) {
+        List<String> errors = ex.getAllValidationResults()
+                .stream()
+                .flatMap(result -> result.getResolvableErrors().stream())
+                .map(MessageSourceResolvable::getDefaultMessage)
+                .collect(Collectors.toList());
+
+        return new ErrorResponse(new CustomException(BAD_REQUEST_DEFAULT, "잘못된 입력 형식이 존재합니다."), errors);
+    }
+
 
     // Dto Valid Exception
     @ResponseStatus(value = BAD_REQUEST)
