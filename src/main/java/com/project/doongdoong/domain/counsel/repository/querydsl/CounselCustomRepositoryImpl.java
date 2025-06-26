@@ -29,15 +29,15 @@ public class CounselCustomRepositoryImpl implements CounselCustomRepository {
         List<Counsel> content = queryFactory
                 .selectFrom(counsel)
                 .leftJoin(counsel.analysis, analysis).fetchJoin()
-                .where(userEq(user))
+                //.where(userEq(user))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
         JPAQuery<Long> countQuery = queryFactory
                 .select(counsel.count())
-                .from(counsel)
-                .where(userEq(user));
+                .from(counsel);
+                //.where(userEq(user));
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }

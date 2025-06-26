@@ -154,9 +154,9 @@ public class WebClientUtil {
         /**
          * Mock 용도와 같은 테스트 용도 주석 코드
          */
-        /*CounselAiResponse counselAiResponse = new CounselAiResponse("답변입니다.", "임시 imageUrl 입니다.");
-        return  counselAiResponse;*/
-        return defaultWebClient
+        CounselAiResponse counselAiResponse = new CounselAiResponse("답변입니다.", "임시 imageUrl 입니다.");
+        return  counselAiResponse;
+        /*return defaultWebClient
                 .post()
                 .uri(lambdaConsultApiUrl)
                 .bodyValue(body)
@@ -167,6 +167,6 @@ public class WebClientUtil {
                                 .map(ExternalApiCallException::new)
                 )
                 .bodyToMono(CounselAiResponse.class)
-                .block();
+                .block();*/
     }
 }

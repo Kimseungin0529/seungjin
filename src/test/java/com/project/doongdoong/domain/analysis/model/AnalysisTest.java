@@ -72,7 +72,6 @@ class AnalysisTest {
         assertThat(result).isTrue();
     }
 
-
     private Analysis createAnalysis(LocalDate analyzeDate) {
         Analysis analysis = Analysis.builder()
                 .build();

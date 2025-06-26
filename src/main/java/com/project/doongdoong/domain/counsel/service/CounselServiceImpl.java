@@ -15,6 +15,7 @@ import com.project.doongdoong.domain.counsel.exception.CounselNotExistPageExcept
 import com.project.doongdoong.domain.counsel.exception.CounselNotFoundException;
 import com.project.doongdoong.domain.counsel.exception.UnAuthorizedForCounselException;
 import com.project.doongdoong.domain.counsel.model.Counsel;
+import com.project.doongdoong.domain.counsel.model.CounselRank;
 import com.project.doongdoong.domain.counsel.model.CounselType;
 import com.project.doongdoong.domain.counsel.repository.CounselRepository;
 import com.project.doongdoong.domain.user.exeception.UserNotFoundException;
@@ -22,6 +23,7 @@ import com.project.doongdoong.domain.user.model.SocialIdentifier;
 import com.project.doongdoong.domain.user.model.User;
 import com.project.doongdoong.domain.user.repository.UserRepository;
 import com.project.doongdoong.global.dto.response.CounselAiResponse;
+import com.project.doongdoong.global.util.CounselRankingCache;
 import com.project.doongdoong.global.util.WebClientUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +47,7 @@ public class CounselServiceImpl implements CounselService {
     private final CounselRepository counselRepository;
     private final UserRepository userRepository;
     private final WebClientUtil webClientUtil;
+    private final CounselRankingCache counselRankingCache;
 
     private final static int COUNSEL_PAGE_SIZE = 10;
 
@@ -61,11 +64,7 @@ public class CounselServiceImpl implements CounselService {
                 .counselType(CounselType.generateCounselTypeFrom(request.getCounselType()))
                 .user(user)
                 .build();
-        /**
-         * 1. 고민은 무조건
-         * 2. analysisId 여부
-         * 3. 각 분석 답변 4개 -> 하나의 스트링 -> AI한테 (imformation)
-         */
+
         if (request.getAnalysisId() != null) { // 기존 분석 결과 반영하기
             Analysis findAnalysis = analysisRepository.findByUserAndId(user, request.getAnalysisId()).orElseThrow(() -> new AnalysisAccessDeny());
             checkCounselAlreadyProcessed(findAnalysis); // 해당 분석의 정보로 상담한 경우 예외
@@ -79,6 +78,11 @@ public class CounselServiceImpl implements CounselService {
         counsel.saveAnswer(counselAiResponse.getAnswer());
         counsel.saveImageUrl(counselAiResponse.getImageUrl());
         Counsel savedCounsel = counselRepository.save(counsel);
+
+        // TODO : 상담 유형 랭킹 도입
+        counselRankingCache.incrementTotalCount(counsel.getCounselType());
+        counselRankingCache.incrementTodayCount(counsel.getCounselType());
+
 
         return CounselResultResponse.builder()
                 .counselId(savedCounsel.getId())
@@ -96,25 +100,15 @@ public class CounselServiceImpl implements CounselService {
 
         Optional.ofNullable(counsel.getAnalysis()) // 분석 -> 상담 으로 연결되는 경우, 분석에 대한 답변 항목 추가
                 .ifPresent(analysis -> {
-                    if (analysis.getAnswers().size() != 4) {
+                    if (!analysis.hasAllAnswer()) {
                         throw new AllAnswersNotFoundException();
                     }
-                    String content = "";
-                    for (Answer answer : analysis.getAnswers()) {
-                        content += answer.getContent() + " ";
-                    }
+                    String content = getConcatenatedAnswerText(analysis);
                     parameters.put("analysisContent", content);
                 });
-        if (parameters.get("analysisContent") == null) { // 없는 경우, 빈 문자열값
-            parameters.put("analysisContent", "");
-        }
-        return parameters;
-    }
 
-    private void checkCounselAlreadyProcessed(Analysis findAnalysis) {
-        if (findAnalysis.getCounsel() != null) {
-            throw new CounselAlreadyProcessedException();
-        }
+        parameters.putIfAbsent("analysisContent", ""); // 없는 경우, 빈 문자열값
+        return parameters;
     }
 
     @Override
@@ -145,17 +139,14 @@ public class CounselServiceImpl implements CounselService {
                 .orElseThrow(UserNotFoundException::new);
 
 
-        pageNumber -= 1;
-        PageRequest pageRequest = PageRequest.of(pageNumber, COUNSEL_PAGE_SIZE);
-        log.info("pageNumber = {}", pageNumber);
+        int pageIndex = convertPageIndexFrom(pageNumber);
+        PageRequest pageRequest = PageRequest.of(pageIndex, COUNSEL_PAGE_SIZE);
         Page<Counsel> counselsPage = counselRepository.searchPageCounselList(findUser, pageRequest);
-        log.info("getTotalPages = {}", counselsPage.getTotalPages());
-        log.info("getTotalElements() = {}", counselsPage.getTotalElements());
-        if (pageNumber + 1 > counselsPage.getTotalPages()) { // 존재하지 않는 페이지에 접근하는 경우
+        if (pageNumber > counselsPage.getTotalPages()) { // 존재하지 않는 페이지에 접근하는 경우
             throw new CounselNotExistPageException();
         }
 
-        CounselListResponse response = CounselListResponse.builder()
+        return CounselListResponse.builder()
                 .currentPage(counselsPage.getNumber() + 1)
                 .numberPerPage(counselsPage.getSize())
                 .totalPage(counselsPage.getTotalPages())
@@ -172,8 +163,24 @@ public class CounselServiceImpl implements CounselService {
                         .collect(Collectors.toList())
                 )
                 .build();
-
-        return response;
     }
 
+    private void checkCounselAlreadyProcessed(Analysis findAnalysis) {
+        if (findAnalysis.getCounsel() != null) {
+            throw new CounselAlreadyProcessedException();
+        }
+    }
+
+    private int convertPageIndexFrom(int pageNumber) {
+        return pageNumber - 1;
+    }
+
+
+    private String getConcatenatedAnswerText(Analysis analysis) {
+        StringBuilder content = new StringBuilder();
+        for (Answer answer : analysis.getAnswers()) {
+            content.append(answer.getContent()).append("\n");
+        }
+        return content.toString();
+    }
 }

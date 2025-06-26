@@ -22,15 +22,15 @@ public class CounselRankingRedis implements CounselRankingCache {
 
     @Override
     public void incrementTodayCount(CounselType type) {
-        String key = CounselCacheKey.generateTotalKey();
+        String key = CounselCacheKey.generateDailyKey(LocalDate.now());
         redisTemplate.opsForZSet().incrementScore(key, type.name(), ONE);
+        redisTemplate.expire(key, WEEKS, TimeUnit.DAYS);
     }
 
     @Override
     public void incrementTotalCount(CounselType type) {
-        String key = CounselCacheKey.generateDailyKey(LocalDate.now());
+        String key = CounselCacheKey.generateTotalKey();
         redisTemplate.opsForZSet().incrementScore(key, type.name(), ONE);
-        redisTemplate.expire(key, WEEKS, TimeUnit.DAYS);
     }
 
     @Override

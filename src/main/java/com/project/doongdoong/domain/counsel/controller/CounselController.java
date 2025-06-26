@@ -6,6 +6,7 @@ import com.project.doongdoong.domain.counsel.dto.response.CounselDetailResponse;
 import com.project.doongdoong.domain.counsel.dto.response.CounselListResponse;
 import com.project.doongdoong.domain.counsel.dto.response.CounselResultResponse;
 import com.project.doongdoong.domain.counsel.service.CounselService;
+import com.project.doongdoong.domain.counsel.service.CounselStatisticsService;
 import com.project.doongdoong.global.annotation.CurrentUser;
 import com.project.doongdoong.global.common.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,6 +27,7 @@ import java.net.URI;
 public class CounselController {
 
     private final CounselService counselService;
+    private final CounselStatisticsService counselStatisticsService;
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
@@ -53,8 +55,10 @@ public class CounselController {
     public ApiResponse<CounselListResponse> findCounsels(@CurrentUser String uniqueValue,
                                                          @RequestParam(name = "pageNumber", required = false, defaultValue = "1")
                                                          @Valid @Min(value = 1, message = "페이지 시작은 최소 1입니다.") int pageNumber) {
+        CounselListResponse counselListResponse = counselService.findCounsels(uniqueValue, pageNumber);
+        CounselRankList combinedRanking = counselStatisticsService.getCombinedRanking();
 
-        return ApiResponse.of(HttpStatus.OK, null, counselService.findCounsels(uniqueValue, pageNumber));
+        return ApiResponse.of(HttpStatus.OK, null, CounselListResponse.of(counselListResponse, combinedRanking));
     }
 
 

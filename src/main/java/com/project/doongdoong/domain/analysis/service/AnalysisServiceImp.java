@@ -14,7 +14,6 @@ import com.project.doongdoong.domain.question.repository.QuestionRepository;
 import com.project.doongdoong.domain.question.service.QuestionProvidable;
 import com.project.doongdoong.domain.user.exeception.UserNotFoundException;
 import com.project.doongdoong.domain.user.model.SocialIdentifier;
-import com.project.doongdoong.domain.user.model.SocialType;
 import com.project.doongdoong.domain.user.model.User;
 import com.project.doongdoong.domain.user.repository.UserRepository;
 import com.project.doongdoong.domain.voice.exception.VoiceNotFoundException;
@@ -95,7 +94,7 @@ public class AnalysisServiceImp implements AnalysisService {
         Map<QuestionContent, String> voiceMap = mapVoiceToQuestionInformation(findVoices);
         List<String> questionVoiceAccessUrls = findUrlsByMatchingQuestionContentsWithVoice(questionContents, voiceMap);
 
-        List<String> answerContents = findAnswerConetentsByMatchingQuestionWithAnswer(questions);
+        List<String> answerContents = findAnswerContentsByMatchingQuestionWithAnswer(questions);
 
         return AnalysisDetailResponse.of(analysisId, findAnalysis.getFeelingState(), findAnalysis.getCreatedTime().format(DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_FORMAT)),
                 questionTexts, questionIds, questionVoiceAccessUrls, answerContents);
@@ -221,7 +220,7 @@ public class AnalysisServiceImp implements AnalysisService {
         return uniqueValue.split("_");
     }
 
-    private List<String> findAnswerConetentsByMatchingQuestionWithAnswer(List<Question> questions) {
+    private List<String> findAnswerContentsByMatchingQuestionWithAnswer(List<Question> questions) {
         return questions.stream()
                 .map(question ->
                         Optional.ofNullable(question.getAnswer())

@@ -5,7 +5,6 @@ import com.project.doongdoong.domain.counsel.model.CounselRank;
 import com.project.doongdoong.domain.counsel.model.CounselType;
 import com.project.doongdoong.global.util.CounselRankingCache;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,10 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CounselStatisticsServiceImpl implements CounselStatisticsService {
 
-    private final RedisTemplate<String, Object> redisTemplate;
     private final CounselRankingCache rankingCache;
-
-    private static final int ONE = 1, WEEKS = 7;
 
     @Override
     public void incrementTypeCount(CounselType counselType) {

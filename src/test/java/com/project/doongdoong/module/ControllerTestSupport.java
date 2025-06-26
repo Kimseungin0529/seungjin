@@ -6,6 +6,7 @@ import com.project.doongdoong.domain.analysis.service.AnalysisService;
 import com.project.doongdoong.domain.answer.service.AnswerService;
 import com.project.doongdoong.domain.counsel.controller.CounselController;
 import com.project.doongdoong.domain.counsel.service.CounselService;
+import com.project.doongdoong.domain.counsel.service.CounselStatisticsService;
 import com.project.doongdoong.domain.user.controller.UserController;
 import com.project.doongdoong.domain.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ import org.springframework.test.web.servlet.MockMvc;
         protected MockMvc mockMvc;
         @MockBean
         protected CounselService counselService;
+        @MockBean
+        CounselStatisticsService counselStatisticsService;
         @MockBean
         protected AnalysisService analysisService;
         @MockBean
